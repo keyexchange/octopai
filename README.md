@@ -12,19 +12,25 @@ Built as a core component of the KeyExchange.org initiative, OctopAI natively su
 
 Traditional AI pipelines rely on massive, centralized models acting as single points of failure. OctopAI operates as a **Cognitive AI Fabric**. Tasks are routed dynamically to the most efficient edge nodes, micro-agents, or hardware enclaves based on network topology, cost, and trust metrics.
 
----
-config:
-  layout: elk
----
+```mermaid
 graph TD
+    %% Define external actors and systems
     User["Human User / Admin"]:::actor
     Ext_LLM_APIs["External LLM APIs <br/>(OpenAI, Anthropic, etc.)"]:::external
     Vector_DB["Vector Database <br/>(Qdrant)"]:::external
     KeyExchange_Ledger["KeyExchange.org Ledger <br/>(Substrate)"]:::external
     MCP_Sources["MCP Data Sources"]:::external
+
+    %% Define the core OctopAI system boundary
     subgraph OctopAI_System ["OctopAI Cognitive Fabric System Boundary"]
+        
+        %% User Interaction Layer
         User_IF["User Interface <br/>(Web / CLI / API Gateways)"]:::ui
+
+        %% The Central Nervous System
         Nervous_System["Nervous System <br/>(Zenoh Pub/Sub Mesh)"]:::communication
+        
+        %% The 'Brain' Core (Central Processing & Orchestration)
         subgraph Cognitive_Brain ["Cognitive Brain Core"]
             direction TB
             Router["Cognitive Router <br/>(Rust/Go)"]:::core
@@ -33,32 +39,48 @@ graph TD
             Compression["Graphlink Compression <br/>Algorithm"]:::core
             Logic_Core["Core Logic & RAG <br/>(Rig Lib)"]:::core
         end
+        
+        %% The 'Arms' (Distributed Agent Execution)
         subgraph Distributed_Arms ["Distributed Agents (WasmActors)"]
             direction LR
             Agent_Nodes["Agent Nodes <br/>(wasmCloud Host)"]:::wasm
             Secure_Runtime["Secure Runtime <br/>(ZeroClaw OS)"]:::wasm
             Agent_Logic["Agent Logic <br/>(Rig Lib)"]:::wasm
         end
+
+        %% Utility Layer
         Data_Serialization["Data Serialization <br/>(Toon Format)"]:::utility
     end
+
+    %% Define connections - User to System
     User -->|"Issues Queries/Commands"| User_IF
     User_IF -->|"Routes Request"| Router
+    
+    %% Brain Internal Interactions
     Router <-->|"State Agreement"| BFT_Consensus
     Router -->|"Transaction Data"| Accounting
     Router <-->|"Semantic Deltas"| Compression
     Router -->|"RAG Processing"| Logic_Core
+    
+    %% Communication & Data Flow (Messaging)
     Logic_Core -->|"Message Serialization"| Data_Serialization
     Router <-->|"Control Plane Pub/Sub"| Nervous_System
     Agent_Nodes <-->|"Data Plane Pub/Sub"| Nervous_System
     Agent_Nodes -->|"Format Payloads"| Data_Serialization
+    
+    %% Arms Internal Interactions
     Agent_Nodes -.->|"Executes Within"| Secure_Runtime
     Agent_Nodes -.->|"Invokes"| Agent_Logic
     Agent_Logic -->|"Format Messages"| Data_Serialization
+    
+    %% External System Interactions
     Router -->|"Final LLM Call"| Ext_LLM_APIs
     Logic_Core -->|"Vector Search"| Vector_DB
     Accounting -->|"Tally Value / Settle"| KeyExchange_Ledger
     Router -.->|"Inject Dynamic Context"| MCP_Sources
     Agent_Logic -.->|"Inject Dynamic Context"| MCP_Sources
+
+    %% Define visual styles for clarity
     classDef actor fill:#fdb,stroke:#333,stroke-width:2px;
     classDef external fill:#ddd,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5;
     classDef ui fill:#fff,stroke:#333,stroke-width:1px;
@@ -68,6 +90,7 @@ graph TD
     classDef bft fill:#fbb,stroke:#333,stroke-width:2px;
     classDef ledger fill:#ffd,stroke:#333,stroke-width:2px;
     classDef utility fill:#eee,stroke:#333,stroke-width:1px,stroke-dasharray: 3 3;
+```
 
 ### Key Capabilities
 
